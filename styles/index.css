@@ -1,0 +1,49 @@
+@import url("/styles/pallets/catppuccin/mocha.css");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--base);
+    color: var(--mauve);
+    font-family: monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    padding: 2rem 5%;
+    text-align: left;
+    position: relative;
+}
+
+.home-page {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.home-page main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5%;
+    text-align: center;
+}
+
+.home-page h1 {
+    text-shadow: 0 0 15px var(--mauve);
+    font-size: 4rem;
+}
+
+p {
+    margin-top: 15px;
+    color: var(--pink);
+}
