@@ -38,12 +38,41 @@ main {
     text-align: center;
 }
 
-.home-page h1 {
+.home-page h1, h2 {
     text-shadow: 0 0 15px var(--mauve);
+}
+
+.home-page h1 {
     font-size: 4rem;
+}
+
+.home-page h2 {
+    font-size: 3rem;
 }
 
 p {
     margin-top: 15px;
     color: var(--pink);
+}
+
+.row-404 {
+    /*
+    flex-direction: row;
+    display: flex;
+    */
+}
+
+.img-404 {
+    margin: 8px 24px;
+    border-radius: 50%;
+    animation: spin 5s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
