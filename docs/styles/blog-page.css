@@ -102,7 +102,8 @@
 
 .blog-post img {
     display: block;
-    max-width: 100%;
+    max-width: 50%;
+    max-height: 400px;
     height: auto;
     margin: 1.5rem auto;
     border-radius: 12px;
