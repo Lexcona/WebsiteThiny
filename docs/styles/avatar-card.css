@@ -1,0 +1,87 @@
+#avatarCard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    width: 35%;
+    min-height: 30%;
+    box-sizing: border-box;
+
+    padding: 16px;
+
+    border-radius: 16px;
+    border: 2px solid transparent;
+
+    background:
+        linear-gradient(
+            to right,
+            color-mix(in srgb, var(--pink) 20%, transparent),
+            color-mix(in srgb, var(--mauve) 20%, transparent)
+        ),
+        color-mix(in srgb, var(--mantle) 75%, transparent);
+}
+
+/* Gradient border drawn as a ring so it doesn't sit underneath the
+   translucent card background (which made the card look opaque). */
+#avatarCard::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    border-radius: 16px;
+    background: linear-gradient(to right, var(--pink), var(--mauve));
+
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+
+    pointer-events: none;
+}
+
+#profile-picture {
+    margin: 8px 24px;
+    
+    animation: spin 10s linear infinite;
+
+
+    border-radius: 50%;
+    border: 4px solid transparent;
+    background:
+        linear-gradient(var(--base), var(--base)) padding-box,
+        linear-gradient(to right, var(--pink), var(--mauve)) border-box;
+}
+
+#avatarCardProfile {
+    display: flex;
+    flex-direction: row;
+    align-items: left;
+    justify-content: left;
+    gap: 12px;
+}
+
+#avatarCardProfileNameDescription {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+#avatarCardDescriptionText {
+    font-size: 16px;
+    text-align: left;
+}
+
+#social-links {
+    margin-top: auto;
+    margin-left: 15px;
+}
+
+.social-link {
+    font-size: 36px;
+    color: white;
+}
