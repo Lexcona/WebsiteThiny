@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WebsiteThiny</title>
+
+    <link rel="stylesheet" href="https://lexcona.com/styles/index.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/navbar.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/background.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/avatar-card.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <script defer src="https://lexcona.com/scripts/cat-face-spawner.js"></script>
+    <script defer src="https://lexcona.com/scripts/random-cat.js"></script>
+
+    <link id="favicon" rel="shortcut icon" type="image/jpg" href="https://avatars.githubusercontent.com/u/229240464?v=4" />
+  </head>
+
+  <body class="">
+    <div id="background"></div>
+    <div id="navbar">
+    <a class="navbar-button" href="https://lexcona.com">
+        <div class="navbar-button-thing"><p>Home</p></div>
+    </a>
+    <a class="navbar-button" href="https://lexcona.com/blog">
+        <div class="navbar-button-thing"><p>Blog</p></div>
+    </a>
+    <a class="navbar-button" href="https://lexcona.com/write-ups">
+        <div class="navbar-button-thing"><p>Write Ups</p></div>
+    </a>
+</div>
+    <main>
+        
+<link rel="stylesheet" href="https://lexcona.com/styles/blog-page.css">
+
+<article class="blog-post">
+  <h1 class="title">
+    Mr. Robot (VulnHub)
+  </h1>
+  <p class="subtitle"><strong>November 17, 2026. 11:16 AM</strong></p>
+  <p>Mr. Robot is an easy beginner box you can find on VulnHub, with the goal of finding all 3 keys. This box has you go from Web to Root to complete the goal.</p>
+<p>Quick side note: this box was really fun when I was going through it and i completely recommend doing it if you are starting up with this stuff :3</p>
+<p>Anyways without further ado let's break into this box :3</p>
+<h1 id="0-discovery">0. Discovery</h1>
+<p>First thing I did was scan the network for the box's IP address.
+After doing <code>nmap -sn</code> it comes back with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Nmap scan report for 172.16.224.1</span></span>
+<span class="giallo-l"><span>Host is up (0.00014s latency).</span></span>
+<span class="giallo-l"><span>Nmap scan report for 172.16.224.131</span></span>
+<span class="giallo-l"><span>Host is up (0.00017s latency).</span></span>
+<span class="giallo-l"><span>Nmap done: 256 IP addresses (2 hosts up) scanned in 3.21 seconds</span></span></code></pre>
+<p><code>nmap -sn</code> scans the network based on the subnet supplied as an argument</p>
+<p>.1 my ip address
+.131 is the box ip address</p>
+<p>While I don't recommend in an environment when you are trying to stay hidden, I scanned with <code>nmap -A</code>, -A is basicly the kitchen sink option of nmap with it doing OS detection <code>-O</code>, version detection <code>-sV</code>, running default scan scripts against found ports <code>-sC</code>, and runs a trace route <code>traceroute</code>, most of the time info wise you don't need all scripts but works for my lazy ass.</p>
+<p>The nmap report comes back with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Nmap scan report for 172.16.224.131</span></span>
+<span class="giallo-l"><span>Host is up (0.00052s latency).</span></span>
+<span class="giallo-l"><span>Not shown: 997 filtered tcp ports (no-response)</span></span>
+<span class="giallo-l"><span>PORT    STATE  SERVICE VERSION</span></span>
+<span class="giallo-l"><span>22/tcp  closed ssh</span></span>
+<span class="giallo-l"><span>80/tcp  open   http    Apache httpd</span></span>
+<span class="giallo-l"><span>|_http-title: Site doesn&#39;t have a title (text/html).</span></span>
+<span class="giallo-l"><span>|_http-server-header: Apache</span></span>
+<span class="giallo-l"><span>443/tcp open   http    Apache httpd</span></span>
+<span class="giallo-l"><span>|_http-title: 400 Bad Request</span></span>
+<span class="giallo-l"><span>|_ssl-date: TLS randomness does not represent time</span></span>
+<span class="giallo-l"><span>| ssl-cert: Subject: commonName=www.example.com</span></span>
+<span class="giallo-l"><span>| Not valid before: 2015-09-16T10:45:03</span></span>
+<span class="giallo-l"><span>|_Not valid after:  2025-09-13T10:45:03</span></span>
+<span class="giallo-l"><span>|_http-server-header: Apache</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span></span>
+<span class="giallo-l"><span>Nmap done: 1 IP address (1 host up) scanned in 98.42 seconds</span></span></code></pre>
+<p>SSH is closed so we are unable to access the machine through there :(</p>
+<h1 id="1-web-exploitation">1. Web Exploitation</h1>
+<h2 id="exploration">Exploration</h2>
+<p>After going to 172.16.224.131:80 we see a terminal style website based on the show Mr. Robot.</p>
+<p>So next I dump the website using <code>wget --recursive</code> to get a dump of the website just in case I need to look in the code.</p>
+<p>This gave me access to a robots.txt</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>User-agent: *</span></span>
+<span class="giallo-l"><span>fsocity.dic</span></span>
+<span class="giallo-l"><span>key-1-of-3.txt</span></span></code></pre>
+<p>We can see in the file a path to the first key at /key-1-of-3.txt :3
+which is <code>073403c8a58a1f80d943455fb30724b9</code></p>
+<p>It also shown a path to a dictionary at /fsocity.dic which is 858,160 words. Downside there is a ton of repeats so I just cleared out the word list with a custom script (<a href="/write-up-sources/MrRobot/scripts/clean_wordlist.py">Word List Cleaner Script</a>)</p>
+<p>That leaves us with 11451 non-dupes :3</p>
+<p>So I went to a random fake url and saw that it's a wordpress website, meaning we could bruteforce into the admin panel.</p>
+<p><img src="/write-up-sources/MrRobot/imgs/Screenshot_20261117_090153.png" alt="WordPress 404 page" /></p>
+<p>Which I confirmed by going to /wp-login.php</p>
+<p><img src="/write-up-sources/MrRobot/imgs/Screenshot_20261117_090000.png" alt="WordPress login page" /></p>
+<p>After trying a fake login we see an invalid username error.</p>
+<h2 id="web-brute-force">Web Brute Force</h2>
+<p>This is possible because the website sends out specific errors if either the password or username is invalid tell you what is right and wrong without having to login.</p>
+<p>I made a script to brute force the username and password sense I going to guess it will say invalid password. (<a href="/write-up-sources/MrRobot/scripts/wp-login-brute.py">Word Press Bruteforce Script</a>)</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Found password :3</span></span>
+<span class="giallo-l"><span>ER28-0652</span></span>
+<span class="giallo-l"><span>Got login data :3</span></span>
+<span class="giallo-l"><span>elliot:ER28-0652</span></span></code></pre>
+<p>Which made us get the username <code>elliot</code> (the protagonist :3)
+Then the password <code>ER28-0652</code> (elliot's employee number :3)</p>
+<p>Really insecure user:password pair but eh it's a machine made to be vulnerable.</p>
+<p>Either way we are now in
+<img src="/write-up-sources/MrRobot/imgs/Screenshot_20261117_085638.png" alt="WordPress admin dashboard logged in as Elliot" /></p>
+<p>Now thinking about it this site would be vulnerable to the php2shell vulnerability, but eh wheres the fun in that.</p>
+<h1 id="2-shell-exploitation">2. Shell Exploitation</h1>
+<h2 id="reverse-shell-setup">Reverse Shell Setup</h2>
+<p>Sense we now have full access to the website we can replace the 404.php in the template with our reverse shell, so when we go to a page that doesn't exist it will give us access to the machine's shell as the user running the website.</p>
+<p>Side Note: RevShells is a really good website I stumbled apon made by 0Day, and I recommend using it.</p>
+<p>Now we got shell access :3
+Downside we are stuck as daemon for now meaning we can't do much :(
+<img src="/write-up-sources/MrRobot/imgs/Screenshot_20261117_090808.png" alt="Reverse shell running as the daemon user" /></p>
+<p>but that's the fun of the game of escalation</p>
+<p>So first we activate it to be an interactive shell with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">python</span><span style="color: #A6E3A1;"> -c &#39;import pty; pty.spawn(&quot;/bin/sh&quot;)&#39;</span></span></code></pre>
+<p>So step one get to an actual user so time to look around :3</p>
+<h2 id="exploring-the-system-and-elevation">Exploring The System and Elevation</h2>
+<p>So I check for home folders and found a folder at /home/robot
+Which includes key 2 of 3, downside the daemon user doesn't have access to it, but we have access to another file at <code>/home/robot/password.raw-md5</code></p>
+<p>So I opened it and it seems to be a md5 hash with no salt meaning we can just mass check with a word list which a program like hashcat turns the word list in hashes and checks which hash it matches up with. This can be slowed down by adding a salt to the hash to slow down the brute force attacks. Though this alone doesn't prevent it, using other hashing algorithms prevents it a lot better, stuff like bcrypt, Argon2id, and scrypt. If you want to learn more look at the owasp article linked in referenses.</p>
+<p>So time to brute force with hashcat so with the command <code>hashcat -m 0 ~/hash.txt CTFs/MrRobot2/wordlist.txt</code></p>
+<p>Which after less than a minute, we got the password <code>abcdefghijklmnopqrstuvwxyz</code> :3
+again another really bad password</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">$</span><span style="color: #A6E3A1;"> su robot</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">su</span><span style="color: #A6E3A1;"> robot</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">Password:</span><span style="color: #A6E3A1;"> abcdefghijklmnopqrstuvwxyz</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">robot@linux:/opt/bitnami/apps/wordpress/htdocs$</span></span></code></pre>
+<p>Now we got access to the key :3
+<code>822c73956184f694993bede3eb39f959</code></p>
+<p>Next, root user access
+so I will look for SUID apps owned by root.</p>
+<p>Quick explanation:
+In Linux there is a permission bit called SUID which stands for Set User ID. Which means when the app is ran it will run the app with the executable owner's effective user id instead of the user who ran the file, which is a major problem if the owner of the executable is root and the app lets you run shell commands. There is also one called SGID which is the byte 1 which it's the same idea as SUID but instead it set the group ID, which allows the app to access stuff that is permited for the group that owns the file. But that isn't really important here.</p>
+<p>So we look with the SUID file with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">find</span><span style="color: #A6E3A1;"> / -perm -4000 -type f</span><span style="color: #94E2D5;"> 2&gt;</span><span style="color: #A6E3A1;">/dev/null</span></span></code></pre>
+<p>Which we find</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">robot@linux:~$</span><span style="color: #A6E3A1;"> find / -perm -4000 -type f</span><span style="color: #94E2D5;"> 2&gt;</span><span style="color: #A6E3A1;">/dev/null</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/bin/ping</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/bin/umount</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/bin/mount</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/bin/ping6</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/bin/su</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/passwd</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/newgrp</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/chsh</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/chfn</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/gpasswd</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/bin/sudo</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/local/bin/nmap</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/lib/openssh/ssh-keysign</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/lib/eject/dmcrypt-get-device</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/lib/vmware-tools/bin32/vmware-user-suid-wrapper</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/lib/vmware-tools/bin64/vmware-user-suid-wrapper</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">/usr/lib/pt_chown</span></span></code></pre>
+<p>The one that catches my eye is nmap</p>
+<p>After checking nmap version it's 3.81
+Which means with interactive mode we can run commands with ! and sense it runs the app as root we can now run commands as root :3
+<img src="/write-up-sources/MrRobot/imgs/Screenshot_20261117_093034.png" alt="nmap interactive mode used to run commands as root" /></p>
+<h2 id="final-key">FINAL KEY</h2>
+<p>Now checking /root we find the file key-3-of-3.txt</p>
+<p>Now we have the final key :3
+<code>04787ddef27c3dee1ee161b21670b4e4</code></p>
+<p>Meaning this box is complete, we have complete remote access and every key :3</p>
+<h1 id="final-notes">Final Notes</h1>
+<p>This is box made to let people who are new to breaking into machines to learn the basics on how to get into the machine and escalate into root.</p>
+<p>I recommend anyone new to try this out and see how they do and hope anyone doing this has fun running through the box.</p>
+<h1 id="prevention">Prevention</h1>
+<p>So lets go through the obvious first</p>
+<ul>
+<li>Make sure you have secure user names and passwords you shouldn't have passwords easily connected to you, a common username/password, or is in a known/major word list.</li>
+<li>Make sure you are always using the most up to date software sense the nmap jump we is not possible in version 5 with them completely removing the interactive mode. When combining SUID, root owning the file, and allowing commands to be ran it becomes a major security risk. Though to note, SUID wasn't automatically applied it was just people badly configuring their permissions. Also they didn't remove it because of people's bad configurations it just prevented the attack.</li>
+<li>Don't use SUID on programs that don't need it can be a major security risk to your system ESPECIALLY if the owner of the executable is root  (you shouldn't be running apps as root anyways unless absolutely needed but I digress)</li>
+<li>In any login panel don't tell the user if they got either the password or username correct if they got one wrong you should tell the user it could be both wrong. This prevents easy brute force attacks.</li>
+</ul>
+<p>Now the little bit less obvious stuff</p>
+<ul>
+<li>Setting up firewall rules and restricting access to only trusted networks helps prevent prevent unwanted people from having access to stuff like login panels, and to prevent random ports from being open allowing attackers to open reverse shells.</li>
+<li>While you wouldn't really notice it during this run through but when I was first doing this box and trying to figure out how to do the reverse shell I found out this box in vulnerable to XSS, which isn't too useful for this box but patching that out and prevent the html from being loaded on the user side is recommended. Also encoding the output and sanitizing it.</li>
+</ul>
+<p>While in this scenario us playing as the attacker is trying to go for all of the keys in the server the attacker would be trying to target for much higher stuff like user's personal information and access to more stuff in your network.</p>
+<p>happy hacking :3</p>
+<p><img src="/imgs/cats/E_EBhmLVQAAtiAY.webp" alt="Cat wearing a Mr. Robot mask" /></p>
+<h1 id="referenses">Referenses</h1>
+<ol>
+<li>Password Hashing: <a rel="external" href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html">cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html</a></li>
+<li>Linux Permission Manual: <a rel="external" href="https://man7.org/linux/man-pages/man2/execve.2.html">man7.org/linux/man-pages/man2/execve.2.html</a></li>
+<li>Word Press Securing: <a rel="external" href="https://developer.wordpress.org/advanced-administration/security/">developer.wordpress.org/advanced-administration/security/</a></li>
+</ol>
+
+</article>
+
+    </main>
+  </body>
+</html>

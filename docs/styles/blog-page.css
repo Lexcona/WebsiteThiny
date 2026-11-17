@@ -28,6 +28,15 @@
     color: var(--text);
 }
 
+.blog-post p,
+.blog-post li {
+    white-space: pre-line;
+}
+
+.blog-post li:has(> p) {
+    white-space: normal;
+}
+
 .blog-post h2,
 .blog-post h3,
 .blog-post h4 {
