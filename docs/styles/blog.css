@@ -1,0 +1,110 @@
+.blog-index {
+    width: min(100%, 960px);
+    margin: 0 auto;
+}
+
+.blog-index .title {
+    margin: 0 0 1.5rem;
+    text-align: left;
+}
+
+.blog-list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    width: 100%;
+}
+
+.blog-listing {
+    position: relative;
+    box-sizing: border-box;
+
+    width: 100%;
+    padding: clamp(18px, 2.5vw, 28px);
+
+    border: 2px solid transparent;
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            to right,
+            color-mix(in srgb, var(--pink) 20%, transparent),
+            color-mix(in srgb, var(--mauve) 20%, transparent)
+        ),
+        color-mix(in srgb, var(--mantle) 75%, transparent);
+
+    transition: box-shadow 160ms ease;
+}
+
+.blog-listing::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    border-radius: 16px;
+    background: linear-gradient(to right, var(--pink), var(--mauve));
+
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    mask-composite: exclude;
+
+    pointer-events: none;
+}
+
+.blog-listing:hover {
+    box-shadow: 0 0 24px color-mix(in srgb, var(--mauve) 18%, transparent);
+}
+
+.blog-page-button {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    line-height: 1.25;
+    text-align: left;
+}
+
+.blog-page-link {
+    color: var(--mauve);
+    text-decoration: none;
+    transition: color 120ms ease;
+}
+
+.blog-page-link:hover,
+.blog-page-link:focus-visible {
+    color: var(--pink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.blog-page-link:focus-visible {
+    outline: 2px solid var(--pink);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.blog-listing hr {
+    margin: 12px 0 14px;
+    border: 0;
+    border-top: 1px solid color-mix(in srgb, var(--mauve) 30%, transparent);
+}
+
+.blog-listing-description {
+    margin-top: 0;
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    line-height: 1.55;
+    color: var(--text);
+    text-align: left;
+}
+
+.blog-listing-publish {
+    margin: 14px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--overlay-1);
+    text-align: left;
+}

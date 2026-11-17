@@ -11,6 +11,7 @@ body {
     color: var(--mauve);
     font-family: monospace;
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -25,8 +26,8 @@ main {
 }
 
 .home-page {
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 .home-page main {
@@ -34,11 +35,11 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 0 5%;
+    padding: clamp(1rem, 4vh, 2rem) 5%;
     text-align: center;
 }
 
-.home-page, h1, h2 {
+.home-page h1, .home-page h2 {
     text-shadow: 0 0 15px var(--mauve);
 }
 
@@ -53,6 +54,12 @@ main {
 p {
     margin-top: 15px;
     color: var(--pink);
+    font-size: 16px;
+}
+
+a {
+    text-decoration: none;
+    color: var(--mauve);
 }
 
 #img-404 {
