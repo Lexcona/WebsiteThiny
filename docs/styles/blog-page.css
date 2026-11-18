@@ -23,17 +23,21 @@
     text-align: left;
 }
 
-.blog-post p {
+.blog-post p,
+.blog-post li,
+.blog-post ol {
     margin: 1rem 0;
     color: var(--text);
 }
 
 .blog-post p,
-.blog-post li {
+.blog-post li,
+.blog-post ol {
     white-space: pre-line;
 }
 
-.blog-post li:has(> p) {
+.blog-post li:has(> p),
+.blog-post ol:has(> p) {
     white-space: normal;
 }
 
