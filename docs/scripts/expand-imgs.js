@@ -4,6 +4,15 @@ document.querySelectorAll(".blog-post img").forEach(elem => {
     });
 });
 
+document.addEventListener("keydown", function (event) {
+    console.log(event.code);
+    if (event.code === "Escape" && overlay.style.display !== "none") {
+        closeOverlay();
+    }
+});
+
+
+
 function openOverlay(src) {
     const overlay = document.querySelector("#overlay");
     const img = document.querySelector("#overlay-img");
