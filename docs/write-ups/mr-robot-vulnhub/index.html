@@ -35,6 +35,7 @@
     <main>
         
 <link rel="stylesheet" href="https://lexcona.com/styles/blog-page.css">
+<script defer src="https://lexcona.com/scripts/expand-imgs.js"></script>
 
 <article class="blog-post">
   <h1 class="title">
@@ -192,6 +193,13 @@ Which means with interactive mode we can run commands with ! and sense it runs t
 </ol>
 
 </article>
+
+<div id="overlay" onclick="closeOverlay();">
+    <div class="overlay-content" onclick="event.stopPropagation();">
+        <img id="overlay-img" src="">
+    </div>
+    <button id="overlay-close" onclick="closeOverlay();">X</button>
+</div>
 
     </main>
   </body>

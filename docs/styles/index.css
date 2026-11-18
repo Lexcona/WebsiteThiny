@@ -83,3 +83,65 @@ a {
         transform: rotate(360deg);
     }
 }
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: color-mix(in srgb, var(--crust) 85%, transparent);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+}
+
+#overlay.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.overlay-content {
+    position: relative;
+}
+
+#overlay-img {
+    display: block;
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 12px;
+
+    transform: scale(0.92);
+    transition: transform 0.25s ease;
+}
+
+#overlay.open #overlay-img {
+    transform: scale(1);
+}
+
+#overlay-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    z-index: 2;
+    border: none;
+    border-radius: 50%;
+
+    width: 36px;
+    height: 36px;
+
+    cursor: pointer;
+    color: var(--text);
+    background: var(--mantle);
+    font-size: 20px;
+}
